@@ -1,19 +1,20 @@
 <!DOCTYPE>
 <html>
 	<head>
+		<meta name="apple-mobile-web-app-capable" />
+
 		<script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
 	</head>
 
 		<body>
 			<a-scene>
 				<a-assets>
-					<img id="my-image" src="img/img00010.jpg" />
+					<video id="SphereVideo" autoplay=" loop="true" src="video/bigVid.mp4" webkit-playsinline />
 				</a-assets>
 
-				<a-curvedimage src="#my-image" height="20" radius="10" theta-length="360"
-					rotation="0 150 0"
-					scale="1 1 1"
-					position="0 0 0"></a-image>
+				<a-videosphere src="#SphereVideo"></a-videosphere>
+
+		
 			</a-scene>
 		</body>
 </html>

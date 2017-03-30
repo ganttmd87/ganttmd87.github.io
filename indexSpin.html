@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cubes</title>
+    <meta name="description" content="Spheres &amp; Fog - A-Frame">
+    <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene fog="type: linear; color: #AAB; far: 30; near: 0">
+
+      <a-assets>
+        <audio id="drone" src="droneTest.wav">
+           <audio id="drone2" src="droneTest2.wav">
+        <audio id="linz" src="linz.wav">
+        <audio id="lungs" src="lungs.aif">  
+        <img id="highlight1" src="img/radial-highlight.png">
+        <img id="shadow3" src="img/blueGrid.png">
+      </a-assets>
+
+
+      <!--green box-->
+
+      <a-entity position="0 0 0" rotation="0 0 0">
+      <a-animation attribute="rotation" to="0 360 0" dur="2000" fill="forwards" easing="linear" repeat="indefinite"></a-animation>
+
+     <a-entity geometry="primitive: box;" material="color: green;" position="0 0 -25" rotation="0 0 0" scale="2.5 2.5 2.5">
+      <a-sound src="audio/droneTest.wav" loop="true" autoplay="true"></a-sound>
+      </a-entity>
+
+
+      <!--red box-->
+
+ <a-entity position="0 0 0" rotation="0 0 0">
+      <a-animation attribute="rotation" to="0 360 0" dur="22000" fill="forwards" easing="linear" repeat="indefinite"></a-animation>
+
+     <a-entity geometry="primitive: box;" material="color: red;" position="0 0 -14" rotation="0 0 0" scale="3.5 3.5 3.5">
+      <a-sound src="audio/droneTest2.wav" loop="true" autoplay="true"></a-sound>
+      </a-entity> </a-entity>
+
+          <!--yellow box-->
+
+ <a-entity position="0 0 0" rotation="0 0 0">
+      <a-animation attribute="rotation" to="0 360 0" dur="27000" fill="forwards" easing="linear" repeat="indefinite"></a-animation>
+
+     <a-entity geometry="primitive: box;" material="color: yellow;" position="0 0 -20" rotation="0 0 0" scale="4.5 4.5 4.5">
+      <a-sound src="audio/droneTest3.wav" loop="true" autoplay="true"></a-sound>
+      </a-entity> </a-entity>
+
+     
+   </a-entity>
+
+  
+        <!--
+        <a-plane rotation="-90 0 0" src="#shadow3" position="0 -10 0" scale="100 100 100"></a-plane>
+      -->
+         <a-entity geometry="primitive: plane" rotation="-90 0 0" scale="100 100 100" position="0 -2 0" material="src:#shadow3; repeat: 10 10"></a-entity>
+       
+
+      <!-- Background -->
+      <a-sky color="#AAB"></a-sky>
+    </a-scene>
+  </body>
+</html>

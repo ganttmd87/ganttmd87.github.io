@@ -1,0 +1,159 @@
+<!--
+	Make a Max patch with sliders and dials, see them represented in 3D.
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>A-frame + xebra</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/0.5.0/aframe.min.js"></script>
+	</head>
+	<body>
+	<a-scene>
+	<a-assets>
+    <img id="skyTexture"
+      src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
+    <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
+  </a-assets>
+
+  <a-entity id="stage" position="0 0 -5">
+  </a-entity>
+
+	<a-sky src="#skyTexture"></a-sky>
+	<a-plane rotation="-90 0 0" width="30" height="30" src="#groundTexture"></a-plane>
+	</a-scene>
+
+		<script src="https://cycling74.s3.amazonaws.com/download/xebra.js"></script>
+		<script>
+
+			var htmlBoxes = {};
+			var globalBoxParams = {};
+			var defaultBoxParams = {
+				position: { x:0, y:0, z:0 },
+				scale: { x:0, y:0, z:0 },
+				rotation: { x:0, y:0, z:0 },
+				color: { r:0, g:0, b:0 },
+				sound: null
+			};
+
+			function addBox(frameObject) {
+				var scene = document.getElementById("stage");
+				var newBox = document.createElement('a-box');
+				scene.appendChild(newBox);
+				htmlBoxes[frameObject.id] = newBox;
+				return newBox;
+			}
+
+			function updateBox(frameObject) {
+				var htmlBox = htmlBoxes[frameObject.id];
+				if (htmlBox) {
+					var boxParams = globalBoxParams[frameObject.id];
+					(["position", "scale", "rotation"].forEach(function (transform) {
+						var x = boxParams[transform].x;
+						var y = boxParams[transform].y;
+						var z = boxParams[transform].z;
+						htmlBox.setAttribute(transform, x + " " + y + " " + z);
+					}));
+					var r = Math.floor(boxParams.color.r * 255) << 16;
+					var g = Math.floor(boxParams.color.g * 255) << 8;
+					var b = Math.floor(boxParams.color.b * 255);
+					var sound = boxParams.sound;
+					var colorString = "#" + ("000000" + (r + g + b).toString(16)).substr(-6);
+					htmlBox.setAttribute('color', colorString);
+
+					if (sound && sound.length > 0) {
+						htmlBox.setAttribute('sound', "src: url(./" + sound + "); autoplay: true; loop: true");
+					} else {
+						htmlBox.setAttribute('sound', "");
+					}
+				}
+			}
+
+			// function updateAllBoxes() {
+			// 	miraFrame.getObjects().forEach(function(object) {
+			// 		if (maxObjectTextures.hasOwnProperty(object.type)) updateBox(object);
+			// 	});
+			// }
+
+			function removeBox(frameObject) {
+				var scene = document.getElementById("stage");
+				scene.removeChild(htmlBoxes[frameObject.id]);
+				delete htmlBoxes[frameObject.id];
+			}
+
+			function updateBoxParams(frame, object) {
+				var boxParams = globalBoxParams[frame.id];
+				if (boxParams === undefined) {
+					boxParams = JSON.parse(JSON.stringify(defaultBoxParams));
+					globalBoxParams[frame.id] = boxParams;
+				}
+
+				// Handle position / scale / rotation / color
+				if (object.type === "flonum") {
+					var destPath = object.getParamValue("varname").split("-");
+					if (destPath.length !== 2) {
+						console.log("Invalid destination,", destPath);
+					} else {
+						boxParams[destPath[0]][destPath[1]] = object.getParamValue("value");
+						updateBox(frame);
+					}
+				} else if (object.type === "message") {
+					var destPath = object.getParamValue("varname");
+					if (destPath === "sound") {
+						boxParams[destPath] = object.getParamValue("textfield");
+						updateBox(frame);
+					} else {
+						console.log("Invalid destination,", destPath);
+					}
+				}
+			}
+
+			function bindFrame(frame) {
+				frame.on("object_added", function(object) {
+					if (object.type === "flonum" || object.type === "message") {
+						updateBoxParams(frame, object);
+						object.on("param_changed", function(object, param) {
+							if (param.type === "value" || param.type === "textfield") {
+								updateBoxParams(frame, object);
+							}
+						});
+					}
+				});
+
+				addBox(frame);
+			}
+
+			function unbindFrame(frame) {
+				removeBox(frame);
+			}
+
+			function connectXebra() {
+				var options = {
+					hostname : "127.0.0.1", // localhost
+					port : 8086
+				};
+
+				var xebraState = new Xebra.State(options);
+
+				xebraState.on("frame_added", function(frame) {
+					bindFrame(frame);
+				});
+
+				xebraState.on("frame_removed", function(frame) {
+					unbindFrame(frame);
+				});
+
+				xebraState.connect();
+			}
+
+			window.onload = function() {
+				connectXebra();
+			}
+
+		</script>
+	</body>
+</html>
